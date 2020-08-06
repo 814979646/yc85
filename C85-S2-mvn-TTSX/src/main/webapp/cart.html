@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-购物车</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="0101util/vue.min.js"></script>
+	<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>	
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;购物车</div>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="index.html">首页</a></div>
+		
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>		
+	</div>
+   <div id="d1">
+	<div class="total_count">全部商品<em >{{count}}</em>件</div>	
+	<ul class="cart_list_th clearfix">
+		<li class="col01">商品名称</li>
+		<li class="col02">商品单位</li>
+		<li class="col03">商品价格</li>
+		<li class="col04">数量</li>
+		<li class="col05">小计</li>
+		<li class="col06">操作</li>
+	</ul>
+	<ul class="cart_list_td clearfix" v-for="l in list">
+		<li class="col01"><input type="checkbox"  :value="l.id" v-model="chooses" @click="choose(l.id)" id="chec"></li>
+		<li class="col02"><img :src="l.images"></li>
+		<li class="col03">{{l.productname}}<br><em>{{l.specs}}</em></li>
+		<li class="col04">{{l.comunit}}</li>
+		<li class="col05" id="price">{{l.price}}</li>
+		<li class="col06">
+			<div class="num_add">
+				<a href="javascript:void()" class="add fl" @click="addupdate(l.id,l.price,l.count)">+</a>
+				<input type="text" class="num_show fl" id="i1" v-model="l.count">	
+				<a href="javascript:void()" class="minus fl" @click="subupdate(l.id,l.price,l.count)">-</a>	
+			</div>
+		</li>
+		<li class="col07">{{l.prices}}</li>
+		<li class="col08"><a href="javascript:void()" @click="del(l.id)">删除</a></li>
+	</ul>
+
+	
+
+	<ul class="settlements">
+		<li class="col01"><input type="checkbox"  @click="allchoose()"></li>
+		<li class="col02" >全选</li>
+		<li class="col03">合计(不含运费)：<span>¥</span><em>{{countprices}}</em><br>共计<b>{{counts}}</b>件商品</li>
+		<li class="col04"><a href="javascript:void()" @click="order">去结算</a></li>
+	</ul>
+</div>
+<script type="text/javascript">
+var allprices=0;
+var allcount=0;
+var isnum=new Array();
+var i1=0;
+var vue1=new Vue({
+	el:"#d1",
+	data:{
+		list:[],
+		count:"",
+		countprices:0,
+		counts:0,
+		chooses:[],
+	},
+	created:function(){
+		this.query();
+	},
+	methods:{
+		query(){
+			axios({
+				url:"/C85-S2-TTSX/QueryCarServlet.do",
+				params:null
+			}).then((res)=>{
+					this.list=res.data.list;
+					this.count=res.data.count;
+					for(var i=0;i<this.list.length;i++){
+						allprices+=parseInt(this.list[i].prices);
+						allcount=parseInt(this.list.length);
+					}
+			});
+		},
+		addupdate(num1,num2,num3){
+			if(isnum.indexOf(num1)>=0 || this.chooses.indexOf(num1)>=0){
+				alert("请取消勾选再增加！");
+			}else{
+				num3++;
+				axios({
+					url:"/C85-S2-TTSX/UpdateCarServlet.do",
+					params:{
+						id:num1,
+						count:num3,
+						price:num2
+					}
+				}).then((res)=>{
+					allprices=0;
+						this.query();
+				});
+			}
+			
+		},
+		subupdate(num1,num2,num3){
+			if(isnum.indexOf(num1)>=0 || this.chooses.indexOf(num1)>=0){
+				alert("请取消勾选再减少！");
+			}else{
+				if(num3>1){
+					num3--;
+					axios({
+						url:"/C85-S2-TTSX/UpdateCarServlet.do",
+						params:{
+							id:num1,
+							count:num3,
+							price:num2
+						}
+					}).then((res)=>{
+						allprices=0;
+							this.query();
+					});
+				}else{
+					axios({
+						url:"/C85-S2-TTSX/DeleteCarServlet.do",
+						params:{
+							id:num1
+						}
+					}).then((res)=>{
+						this.query();
+					});
+				}
+			}
+		},
+		del(num){
+			var msg="是否删除这条数据";
+			if(confirm(msg)){
+			axios({
+				url:"/C85-S2-TTSX/DeleteCarServlet.do",
+				params:{
+					id:num
+				}
+			}).then((res)=>{
+				alert(res.data);
+				allprices=0;
+				this.query();
+			});
+			}else{
+				return false;
+			}
+		},
+		choose(num){
+			if(i1==0){//未全选
+				if(isnum.indexOf(num)==-1){
+					axios({
+						url:"/C85-S2-TTSX/QueryPricesServlet.do",
+						params:{
+							id:num
+						}
+					}).then((res)=>{
+						var a=parseInt(res.data[0].prices);
+						this.countprices+=a;
+						isnum.push(num);
+						this.counts++;
+						
+					});
+				}else if(isnum.indexOf(num)>=0){
+					axios({
+						url:"/C85-S2-TTSX/QueryPricesServlet.do",
+						params:{
+							id:num
+						}
+					}).then((res)=>{
+						this.countprices-=res.data[0].prices;
+						this.counts--;
+						isnum.splice(isnum.indexOf(num),1);
+						
+					});
+				}
+			}else if(i1==1){//全选
+					console.info(this.chooses);
+					if(this.chooses.indexOf(num)==-1){
+						axios({
+							url:"/C85-S2-TTSX/QueryPricesServlet.do",
+							params:{
+								id:num
+							}
+						}).then((res)=>{
+							var a=parseInt(res.data[0].prices);
+							this.countprices+=a;
+							this.counts++;
+						});
+						this.chooses.push(num);
+						
+					}else if(this.chooses.indexOf(num)>=0){
+						axios({
+							url:"/C85-S2-TTSX/QueryPricesServlet.do",
+							params:{
+								id:num
+							}
+						}).then((res)=>{
+							console.info(num);
+							console.info(this.chooses.indexOf(num));
+							this.countprices-=res.data[0].prices;
+							this.counts--;
+						});
+						this.chooses.splice(this.chooses.indexOf(num),0);
+					}	
+			}
+		},
+		allchoose(){
+			var count=0;
+				for(var i=0;i<this.count;i++){
+					if(i1==0){
+						this.chooses.push(this.list[i].id);
+						this.countprices=allprices;
+						this.counts=allcount;
+						//
+						axios({
+							url:"/C85-S2-TTSX/QueryPricesServlet.do",
+							params:{
+								id:this.list[i].id
+							}
+						}).then((res)=>{
+						});
+						//
+						count++;
+						if(count==this.count){
+							i1=1;
+						}
+					}else if(i1==1){
+							this.countprices=0;
+							this.counts=0;
+							//
+							axios({
+								url:"/C85-S2-TTSX/QueryPricesServlet.do",
+								params:{
+									id:this.list[i].id
+								}
+							}).then((res)=>{
+							});
+							//
+						count++;
+						this.chooses.pop();
+						if(count==this.count){
+							i1=0;
+						}
+					}
+				}
+		},
+		order(){
+			if(this.counts==0){
+				alert("请选择需要购买的商品！");
+			}else{
+				axios({
+					url:"/C85-S2-TTSX/InsertOrderServlet.do",
+					params:{
+						orderprices:this.countprices
+					}
+				}).then((res)=>{
+					var oid=res.data;
+					axios({
+						url:"/C85-S2-TTSX/UpdateOidServlet.do",
+						params:{
+							oid:oid
+						}
+					}).then((res)=>{
+						location.href="place_order.html";
+					});
+				});
+			}
+			
+		},
+	}
+})
+
+</script>
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	
+</body>
+</html>

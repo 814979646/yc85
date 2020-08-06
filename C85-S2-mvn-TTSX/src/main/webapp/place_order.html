@@ -1,0 +1,405 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-提交订单</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+			<script type="text/javascript" src="0101util/vue.min.js"></script>
+			<script type="text/javascript" src="0101util/axios.min.js"></script>
+			 <style type="text/css">
+#b1 {
+    color: #444444;
+    background: #F3F3F3;
+    border: 1px #DADADA solid;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 9pt;
+    outline: none;
+}
+
+#b1:hover {
+    border: 1px #C6C6C6 solid;
+    box-shadow: 1px 1px 1px #EAEAEA;
+    color: #333333;
+    background: #F7F7F7;
+}
+
+#b1:active {
+    box-shadow: inset 1px 1px 1px #DFDFDF;   
+}
+</style>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;提交订单</div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+				<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+	</div>
+
+	<h3 class="common_title">确认收货地址</h3>
+	<div id="app">
+		<div id="d1" class="common_list_con clearfix">
+			<dl v-for="l in list">
+				<dt>寄送到：</dt>
+				<dd>
+					<input type="radio" name="" checked=""> <span>{{l.address}}
+					</span> <span>（{{l.name}}收） </span> <span>
+							{{l.phone.substring(0,3).concat("*****").concat(l.phone.length-3,l.phone.length)}}</span>
+				</dd>
+				<br>
+					<dt>使用会员折扣：</dt>
+					<dd></dd>
+					<dd v-if="vip=='大众会员'">
+						<input type="radio" @click="change(0)"><span
+							style="font-size: 1.5em; color: red; position: relative; top: 5px">{{vip}}:无折扣
+						</span>
+					</dd>
+					<dd v-if="vip=='白银会员'">
+						<input type="radio" @click="change(1)"><span
+							style="font-size: 1.5em; color: red; position: relative; top: 5px">{{vip}}:全场9折
+						</span>
+					</dd>
+					<dd v-if="vip=='黄金会员'">
+						<input type="radio" @click="change(2)"><span
+							style="font-size: 1.5em; color: red; position: relative; top: 5px">{{vip}}:全场8折
+						</span>
+					</dd>
+					<dd v-if="vip=='铂金会员'">
+						<input type="radio" @click="change(3)"><span
+							style="font-size: 1.5em; color: red; position: relative; top: 5px">{{vip}}:全场7折
+						</span>
+					</dd>
+					<dd v-if="vip=='钻石会员'">
+						<input type="radio" @click="change(4)"><span
+							style="font-size: 1.5em; color: red; position: relative; top: 5px">{{vip}}:全场6折
+						</span>
+					</dd>
+					<dd v-if="vip=='superVIP'">
+						<input type="radio" @click="change(5)"><span
+							style="font-size: 1.5em; color: red; position: relative; top: 5px">{{vip}}:全场5折
+						</span>
+					</dd>
+			</dl>
+			<a href="user_center_site.html" class="edit_site">编辑收货地址</a>
+
+		</div>
+		<h3 class="common_title">支付方式</h3>
+		<div class="common_list_con clearfix">
+			<div class="pay_style_con clearfix">
+				<input type="radio" name="pay_style"> <label class="cash">货到付款</label>
+					<input type="radio" name="pay_style"> <label class="weixin">微信支付</label>
+						<input type="radio" name="pay_style" checked> <label
+							class="zhifubao"></label> <input type="radio" name="pay_style">
+								<label class="bank">银行卡支付</label>
+			</div>
+		</div>
+		<div id="dd">
+			<h3 class="common_title">商品列表</h3>
+			<div>
+				<div id="d2" class="common_list_con clearfix">
+					<ul class="goods_list_th clearfix">
+						<li class="col01">商品名称</li>
+						<li class="col02">商品单位</li>
+						<li class="col03">商品价格</li>
+						<li class="col04">数量</li>
+						<li class="col05">小计</li>
+					</ul>
+					<ul id="ul" class="goods_list_td clearfix"
+						v-for="l1,index in list1">
+						<li class="col01">{{index+1}}</li>
+						<li class="col02"><img :src="l1.images"></li>
+						<li class="col03">{{l1.pname}}</li>
+						<li class="col04">{{l1.spesc}}</li>
+						<li class="col05">{{l1.price}}</li>
+						<li class="col06">{{l1.count}}</li>
+						<li class="col07">{{l1.prices}}</li>
+					</ul>
+				</div>
+
+				<h3 class="common_title">总金额结算</h3>
+
+				<div class="common_list_con clearfix">
+					<div class="settle_con">
+						<div class="total_goods_count">
+							共<em>{{count}}</em>件商品，总金额<b>{{prices}}元</b>
+						</div>
+						<div class="transit">
+							运费：<b>0元</b>
+						</div>
+						<div class="total_pay">
+							实付款：<b>{{prices}}</b>
+						</div>
+						<div
+							style="position: relative; bottom: 80px; color: red; left: 700px">
+							<input type="radio" @click="down()"> <span style="font-size: 1.4em">使用淘金币：{{taojb.substring(0,5)}}</span><br>
+									<div>
+										<button id="b1" @click="tmin">最少</button>
+										<button id="b1" @click="tsub">-</button>
+										<input type="text" v-model="tao"
+											style="height: 18px; width: 40px" >
+										<button id="b1" @click="tadd">+</button>
+										<button id="b1" @click="tmax">最多</button>
+									</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="order_submit clearfix">
+				<a href="javascript:void()" id="order_btn" @click="order">提交订单</a>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+var i=0;
+var vue1=new Vue({
+	el:"#app",
+	data:{
+		list:[],
+		list1:[],
+		count:"",
+		prices:0,
+		list2:[],
+		vip:"",
+		taojb:"",
+		tao:0
+	},
+	created:function(){
+		this.query();
+		this.queryaddress();
+		this.queryinfo();
+		this.querydata();
+	},
+	methods:{
+		tmax(){
+			this.tao=parseInt(this.taojb/10);
+			if(i==1){
+				this.prices=this.prices-parseInt(this.taojb/10);
+			}
+		},
+        tmin(){
+			this.tao=0;
+			if(i==1){
+				this.prices=this.prices+parseInt(this.taojb/10);
+			}
+		},
+		tadd(){
+			if(this.tao==parseInt(this.taojb/10)){
+				alert("不能再增加了");
+			}else{
+				this.tao++;	
+				if(i==1){
+					this.prices--;
+				}
+			}
+		},
+		tsub(){
+			if(this.tao==1){
+				alert("不能再减少了");
+			}else{
+				this.tao--;	
+				if(i==1){
+					this.prices++;
+				}
+			}
+			},
+		down(){
+			if(this.taojb<10){
+			}else{
+				if(i==0){
+					i=1;
+					this.prices=this.prices-this.tao;
+				}else{
+					alert("请不要多次点击");
+				}	
+			}
+			
+		},
+		querydata(){
+			axios({
+				url:"/C85-S2-TTSX/ReplyServlet.do",
+				params:{
+					op:"querydata"
+				}
+			}).then((res)=>{
+					this.vip=res.data[0].vip;
+					this.taojb=res.data[0].taojb;
+			});
+		},
+		query(){
+			axios({
+				 url:"/C85-S2-TTSX/QueryPorderServlet.do", 
+				 params:null
+			}).then((res)=>{
+				this.list1=res.data.list;
+				this.count=res.data.count;
+				this.prices=res.data.prices;
+			});
+		},
+		change(num){
+			switch(num){
+			case 0:
+				this.prices=this.prices;
+				break;
+			case 1:
+				this.prices=this.prices*0.9;
+				break;
+			case 2:
+				this.prices=this.prices*0.8;
+				break;
+			case 3:
+				this.prices=this.prices*0.7;
+				break;
+			case 4:
+				this.prices=this.prices*0.6;
+				break;
+			case 2:
+				this.prices=this.prices*0.5;
+				break;
+			}
+		},
+		queryaddress(){
+			axios({
+				url:"/C85-S2-TTSX/QueryAddressOrderServlet.do",
+				params:null
+			}).then((res)=>{
+				console.info(res.data);
+				this.list=res.data;
+				axios({
+					 url:"/C85-S2-TTSX/ReplyServlet.do", 
+					 params:{
+						 address:this.list[0].address,
+						 phone:this.list[0].phone,
+						 name:this.list[0].name,
+						 op:"updateaddress"
+					 }
+				}).then((res)=>{
+				});
+			});
+		},
+		order(){
+			axios({
+				 url:"/C85-S2-TTSX/UpdateOrderServlet.do", 
+				 params:{
+					 address:this.list2[0].address,
+					 phone:this.list2[0].phone,
+					 name:this.list2[0].name,
+					 orderprices:this.prices,
+					 taojb:this.tao*10
+				 }
+			}).then((res)=>{
+				//alert();
+				this.prices=0;
+				location.href="index.jsp";
+			});	
+		},
+		queryinfo(){
+			axios({
+				url:"/C85-S2-TTSX/QueryAddressOrderServlet.do",
+				params:null
+			}).then((res)=>{
+				this.list2=res.data;
+			});
+		},
+	}
+	});
+	</script>
+
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a> <span>|</span> <a href="#">联系我们</a> <span>|</span>
+			<a href="#">招聘人才</a> <span>|</span> <a href="#">友情链接</a>
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888 京ICP备*******8号</p>
+	</div>
+
+	<div class="popup_con">
+		<div class="popup">
+			<p>订单提交成功！</p>
+		</div>
+
+		<div class="mask"></div>
+	</div>
+	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+	<script type="text/javascript">
+		$('#order_btn').click(function() {
+			localStorage.setItem('order_finish',2);
+
+			$('.popup_con').fadeIn('fast', function() {
+
+				setTimeout(function(){
+					$('.popup_con').fadeOut('fast',function(){
+						window.location.href = 'index.html';
+					});	
+				},3000)
+				
+			});
+		});
+	</script>
+</body>
+</html>

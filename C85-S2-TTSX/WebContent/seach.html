@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-商品列表</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="0101util/vue.min.js"></script>
+	<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+		<div class="guest_cart fr" id="car">
+			<a href="#" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl">{{count}}</div>
+		</div>
+		<script type="text/javascript">
+		var vue6=new Vue({
+			el:"#car",
+			data:{
+				count:"",
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryCarServlet.do",
+					params:null
+				}).then((res)=>{
+						this.count=res.data.count;
+				});	
+			}
+		});
+		</script>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>	
+				<span></span>			
+				<ul class="subnav">
+					<li><a href="list.html#1" class="fruit">新鲜水果</a></li>
+					<li><a href="list.html#2" class="seafood">海鲜水产</a></li>
+					<li><a href="list.html#3" class="meet">猪牛羊肉</a></li>
+					<li><a href="list.html#4" class="egg">禽类蛋品</a></li>
+					<li><a href="list.html#5" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="list.html#6" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="index.html">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="cutlist.html#7">折扣专区</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">搜索</a>
+	</div>
+
+	<div class="main_wrap clearfix" id="app">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul id="u3">
+					<li v-for="l in list2"><a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+						<h4>
+							<a href="#">{{l.productname}}</a>
+						</h4>
+						<div class="prize">￥{{l.price}}</div>
+						</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<div class="sort_bar">
+				<a href="#" class="active">默认</a>
+				<a href="#">价格</a>
+				<a href="#">人气</a>
+			</div>
+
+			<ul id="u1" class="goods_type_list clearfix">
+				<li v-for="l in list">
+					<a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<h4><a :href="'detail.html#'+l.id">{{l.productname}}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{l.price}}</span>
+						<span class="unit">{{l.specs}}</span>
+						<a href="javascript:void()" class="add_goods" title="加入购物车" @click="add(l.id)"></a>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+<script type="text/javascript" >
+		var vue1=new Vue({
+			el:"#app",
+			data:{
+				list:[],
+				list2:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/SeachServlet2.do",
+					params:{
+						productname:"",
+					}
+				}).then((res)=>{
+					this.list=res.data;
+				})
+				this.querynew();
+			},
+			methods:{
+				add(num){
+					axios({
+						url:"/C85-S2-TTSX/InsertCarServlet.do",
+						params:{
+							id:num,
+							op:1
+						}		
+					}).then((res)=>{
+						alert(res.data);
+					});
+				},
+				querynew(){
+					axios({
+						url:"/C85-S2-TTSX/LastServlet.do",
+						params:{
+							op:"querynew"
+						}		
+					}).then((res)=>{
+						this.list2=res.data;
+					});
+				},
+			}
+		});
+		
+		</script>
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	
+</body>
+</html>

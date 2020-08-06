@@ -1,0 +1,638 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-首页</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+			<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+			<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+			<script type="text/javascript" src="js/slide.js"></script>
+			<script type="text/javascript" src="0101util/vue.min.js"></script>
+			<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<!-- <style type="text/css">
+#ad {
+	width: 200px;
+	height: 200px;
+	background: url(images/fruit.jpg);
+	float:right;
+	position: fixed;
+}
+</style> -->
+
+<body >
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					this.count();
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+					count(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"LoginCount"
+							}
+						}).then((res)=>{
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+<!-- 	<div id="ad"></div> -->
+
+
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div id="dseach" class="search_con fl">
+			<input type="text" class="input_text fl" name="da"
+				v-model="productname" placeholder="搜索商品"> <input
+				type="button" class="input_btn fr" name="" value="搜索" @click="seach">
+		</div>
+		<script type="text/javascript">
+		var vue5=new Vue({
+			el:"#dseach",
+			data:{
+				productname:"",
+			},
+			methods:{
+				seach(){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:this.productname,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		});
+		
+		</script>
+		<div class="guest_cart fr" id="car">
+			<a href="cart.html" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">{{count}}</div>
+		</div>
+		<script type="text/javascript">
+		var vue6=new Vue({
+			el:"#car",
+			data:{
+				count:"",
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryCarServlet.do",
+					params:null
+				}).then((res)=>{
+						this.count=res.data.count;
+				});	
+			}
+		});
+		</script>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar">
+			<h1 class="fl">全部商品分类</h1>
+			<ul class="navlist fl">
+				<li><a href="">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="cutlist.html#7">折扣专区</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="center_con clearfix">
+		<ul class="subnav fl">
+			<li><a href="#model01" class="fruit">新鲜水果</a></li>
+			<li><a href="#model02" class="seafood">海鲜水产</a></li>
+			<li><a href="#model03" class="meet">猪牛羊肉</a></li>
+			<li><a href="#model04" class="egg">禽类蛋品</a></li>
+			<li><a href="#model05" class="vegetables">新鲜蔬菜</a></li>
+			<li><a href="#model06" class="ice">速冻食品</a></li>
+		</ul>
+		<div class="slide fl">
+			<ul class="slide_pics">
+				<li><img src="images/slide.jpg" alt="幻灯片"></li>
+				<li><img src="images/slide02.jpg" alt="幻灯片"></li>
+				<li><img src="images/slide03.jpg" alt="幻灯片"></li>
+				<li><img src="images/slide04.jpg" alt="幻灯片"></li>
+			</ul>
+			<div class="prev"></div>
+			<div class="next"></div>
+			<ul class="points"></ul>
+		</div>
+		<div class="adv fl">
+			<a href="cutlist.html#7"><img src="images/adv01.jpg"></a> 
+			<a href="#"><img src="images/adv02.jpg"></a>
+		</div>
+	</div>
+
+	<div id="dd1" class="list_model">
+		<div class="list_title clearfix">
+			<h3 class="fl" id="model01">新鲜水果</h3>
+			<div class="subtitle fl">
+				<span>|</span>
+				 <a href="javascript:void()" v-for="l in list2" @click="seach(l.productname)">{{l.productname}}</a>
+			</div>
+			<a href="list.html#1" class="goods_more fr" id="fruit_more">查看更多
+				></a>
+		</div>
+
+		<div id="d1" class="goods_con clearfix">
+			<div class="goods_banner fl">
+				<img src="images/banner01.jpg">
+			</div>
+			<ul class="goods_list fl">
+				<li v-for="l in list1">
+					<h4>
+						<a :href="'detail.html#'+l.id">{{l.productname}}</a>
+					</h4> <a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<div class="prize">¥ {{l.price}}</div>
+				</li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+		var vue1=new Vue({
+			el:"#dd1",
+			data:{
+				list1:[],
+				list2:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryProductServlet.do",
+					params:{
+						cid:1
+					}		
+				}).then((res)=>{
+					this.list1=res.data;
+				});
+				this.query();
+			},
+			methods:{
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querymax",
+							cid:1
+						}		
+					}).then((res)=>{
+						this.list2=res.data;
+					});
+				},
+				seach(name){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:name,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		})
+		</script>
+	</div>
+
+	<div class="list_model" id="d2">
+		<div class="list_title clearfix">
+			<h3 class="fl" id="model02">海鲜水产</h3>
+			<div class="subtitle fl">
+				<span>|</span> <a href="javascript:void()" v-for="l in list3" @click="seach(l.productname)">{{l.productname}}</a>
+			</div>
+			<a href="list.html#2" class="goods_more fr">查看更多 ></a>
+		</div>
+
+		<div  class="goods_con clearfix">
+			<div class="goods_banner fl">
+				<img src="images/banner02.jpg">
+			</div>
+			<ul class="goods_list fl">
+				<li v-for="l in list2">
+					<h4>
+						<a href="#">{{l.productname}}</a>
+					</h4> <a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<div class="prize">¥ {{l.price}}</div>
+				</li>
+			</ul>
+		</div>
+		
+	</div>
+<script type="text/javascript">
+		var vue2=new Vue({
+			el:"#d2",
+			data:{
+				list2:[],
+				list3:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryProductServlet.do",
+					params:{
+						cid:2
+					}		
+				}).then((res)=>{
+					this.list2=res.data;
+				});
+				this.query();
+			},
+			methods:{
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querymax",
+							cid:2
+						}		
+					}).then((res)=>{
+						this.list3=res.data;
+					});
+				},
+				seach(name){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:name,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		})
+		</script>
+	<div class="list_model" id="d3">
+		<div class="list_title clearfix">
+			<h3 class="fl" id="model03">猪牛羊肉</h3>
+			<div class="subtitle fl">
+				<span>|</span> <a href="javascript:void()" v-for="l in list" @click="seach(l.productname)">{{l.productname}}</a> 
+			</div>
+			<a href="list.html#3" class="goods_more fr">查看更多 ></a>
+		</div>
+
+		<div  class="goods_con clearfix">
+			<div class="goods_banner fl">
+				<img src="images/banner03.jpg">
+			</div>
+			<ul class="goods_list fl">
+				<li v-for="l in list3">
+					<h4>
+						<a href="#">{{l.productname}}</a>
+					</h4> <a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<div class="prize">¥ {{l.price}}</div>
+				</li>
+			</ul>
+		</div>
+		
+	</div>
+<script type="text/javascript">
+		var vue3=new Vue({
+			el:"#d3",
+			data:{
+				list3:[],
+				list:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryProductServlet.do",
+					params:{
+						cid:3
+					}		
+				}).then((res)=>{
+					this.list3=res.data;
+				});
+				this.query();
+			},
+			methods:{
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querymax",
+							cid:3
+						}		
+					}).then((res)=>{
+						this.list=res.data;
+					});
+				},
+				seach(name){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:name,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		})
+		</script>
+	<div class="list_model" id="d4">
+		<div class="list_title clearfix">
+			<h3 class="fl" id="model04">禽类蛋品</h3>
+			<div class="subtitle fl">
+				<span>|</span> <a href="javascript:void()" v-for="l in list" @click="seach(l.productname)">{{l.productname}}</a>
+			</div>
+			<a href="list.html#4" class="goods_more fr">查看更多 ></a>
+		</div>
+
+		<div  class="goods_con clearfix">
+			<div class="goods_banner fl">
+				<img src="images/banner04.jpg">
+			</div>
+			<ul class="goods_list fl">
+				<li v-for="l in list4">
+					<h4>
+						<a href="#">{{l.productname}}</a>
+					</h4> <a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<div class="prize">¥ {{l.price}}</div>
+				</li>
+
+			</ul>
+		</div>
+
+	</div>
+		<script type="text/javascript">
+		var vue3=new Vue({
+			el:"#d4",
+			data:{
+				list4:[],
+				list:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryProductServlet.do",
+					params:{
+						cid:4
+					}		
+				}).then((res)=>{
+					this.list4=res.data;
+				});
+				this.query();
+			},
+			methods:{
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querymax",
+							cid:4
+						}		
+					}).then((res)=>{
+						this.list=res.data;
+					});
+				},
+				seach(name){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:name,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		})
+		</script>
+	<div class="list_model" id="d5">
+		<div class="list_title clearfix">
+			<h3 class="fl" id="model05">新鲜蔬菜</h3>
+			<div class="subtitle fl">
+				<span>|</span> <a href="javascript:void()" v-for=" l in list" @click="seach(l.productname)">{{l.productname}}</a>
+			</div>
+			<a href="list.html#5" class="goods_more fr">查看更多 ></a>
+		</div>
+
+		<div  class="goods_con clearfix">
+			<div class="goods_banner fl">
+				<img src="images/banner05.jpg">
+			</div>
+			<ul class="goods_list fl">
+				<li v-for="l in list5">
+					<h4>
+						<a href="#">{{l.productname}}</a>
+					</h4> <a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<div class="prize">¥ {{l.price}}</div>
+				</li>
+
+			</ul>
+		</div>
+		
+	</div>
+<script type="text/javascript">
+		var vue3=new Vue({
+			el:"#d5",
+			data:{
+				list5:[],
+				list:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryProductServlet.do",
+					params:{
+						cid:5
+					}		
+				}).then((res)=>{
+					this.list5=res.data;
+				});
+				this.query();
+			},
+			methods:{
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querymax",
+							cid:5
+						}		
+					}).then((res)=>{
+						this.list=res.data;
+					});
+				},
+				seach(name){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:name,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		})
+		</script>
+	<div class="list_model" id="d6">
+		<div class="list_title clearfix">
+			<h3 class="fl" id="model06">速冻食品</h3>
+			<div class="subtitle fl">
+				<span>|</span> <a href="javascript:void()" v-for="l in list" @click="seach(l.productname)">{{l.productname}}</a> 
+			</div>
+			<a href="list.html#6" class="goods_more fr">查看更多 ></a>
+		</div>
+
+		<div  class="goods_con clearfix">
+			<div class="goods_banner fl">
+				<img src="images/banner06.jpg">
+			</div>
+			<ul class="goods_list fl">
+				<li v-for="l in list6">
+					<h4>
+						<a href="detail.html">{{l.productname}}</a>
+					</h4> <a :href="'detail.html#'+l.id"><img :src="l.images"></a>
+					<div class="prize">¥ {{l.price}}</div>
+				</li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+		var vue3=new Vue({
+			el:"#d6",
+			data:{
+				list6:[],
+				list:[]
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryProductServlet.do",
+					params:{
+						cid:6
+					}		
+				}).then((res)=>{
+					this.list6=res.data;
+					this.query();
+					this.check();
+				});
+			},methods:{
+				query(){
+				axios({
+					url:"/C85-S2-TTSX/ReplyServlet.do",
+					params:{
+						op:"querymax",
+						cid:6
+					}		
+				}).then((res)=>{
+					this.list=res.data;
+				});
+			},
+				check(){
+					axios({
+						url:"/C85-S2-TTSX/PorderServlet.do",
+						params:{
+							op:"checkaddress"
+						}
+					}).then((res)=>{
+						if(res.data==0){
+							if(confirm("请先设置默认地址再去浏览哦")){
+								location.href="user_center_site.html";
+							}else{
+								location.href="user_center_site.html";	
+							}
+						}
+					});
+				},
+				seach(name){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:name,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		})
+		</script>
+	</div>
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a> <span>|</span> <a href="#">联系我们</a> <span>|</span>
+			<a href="#">招聘人才</a> <span>|</span> <a href="backlogin.html">友情链接</a>
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888 京ICP备*******8号</p>
+	</div>
+	<!-- <script type="text/javascript" src="js/slideshow.js"></script> -->
+	<!-- <script type="text/javascript">
+		/* BCSlideshow('focuspic'); */
+		var oFruit = document.getElementById('fruit_more');
+		var oShownum = document.getElementById('show_count');
+
+		var hasorder = localStorage.getItem('order_finish');
+
+		if(hasorder)
+		{
+			oShownum.innerHTML = '2';
+		}
+
+		oFruit.onclick = function(){
+			window.location.href = 'list.html';
+		}
+	</script> -->
+</body>
+</html>

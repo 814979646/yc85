@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>后台管理系统</title>
+<link rel="stylesheet" type="text/css" href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript">
+		var data = [{
+	        text: 'Form',
+	        iconCls: 'icon-sum',
+	        state: 'open',
+	        children: [{
+	            text: '商品管理',
+	            url:"product.html",
+	        },{
+	            text: '订单明细管理',
+	            url:"order.html" 
+	        },{
+	            text: '用户信息管理',
+	            url:"user.html" 
+	        }]
+	    },{
+	        text: 'Main',
+	        iconCls: 'icon-more',
+	        children: [{
+	        	text: '评论管理',
+	            url:"reply.html",
+	        },{
+	            text: '...'
+	        },{
+	            text: '...',
+	            children: [{
+	                text: '..'
+	            },{
+	                text: '...'
+	            }]
+	        }]
+	    }];
+ function selectMenu(item){
+	 if($('#tt').tabs('exists',item.text)){
+		 $('#tt').tabs('select',item.text);
+	 }else{
+		 $('#tt').tabs('add',{
+			 title:item.text,
+			 selected:true,//选中这个页面
+			 closable:true,//一个小×
+			 //iframe:嵌入的子框架   子页面   content里面的内容必须是HTML里面的格式
+			 content:"<iframe src='"+item.url+"' style='width:100%;height:100%;border:0px'></iframe>"
+		 }) ;
+	 }
+ }
+		
+	</script>
+</head>
+<body>
+<div class="easyui-layout" fit="true">
+		<div data-options="region:'south',split:true" style="height:50px;"></div>
+		<div data-options="region:'west',split:true" title="菜单" style="width:200px;">
+		<div class="easyui-accordion" fit="true">
+		<div id="sm" title="基础数据维护" class="easyui-sidemenu" data-options="iconCls:'icon-ok',
+		data:data,fit:true,
+		onSelect:selectMenu" 
+		style="overflow:auto;padding:0px;">	
+		
+		</div>
+		<div title="物流信息" 
+		data-options="iconCls:'icon-help'" style="padding:10px;">
+		
+		</div>
+		<div title="财务报表" 
+		data-options="iconCls:'icon-search'" style="padding:10px;">
+		</div>
+	</div>
+		</div>
+		<div id="tt" class="easyui-tabs" 
+		data-options="region:'center',
+		title:'展示区',iconCls:'icon-ok'">
+			
+		</div>
+	</div>
+</body>
+</html>

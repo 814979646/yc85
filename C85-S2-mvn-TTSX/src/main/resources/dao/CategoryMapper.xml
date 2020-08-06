@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.CategoryMapper">
+
+  <resultMap type="bean.ttsx_category" id="rmds">
+  		<collection property="products" column="id"
+  		select="dao.ProductMapper.selectByCid"></collection>
+  </resultMap>
+  
+  <resultMap type="bean.ttsx_category" id="rmdb">
+  		<collection property="children" column="id"
+  		select="selectChildren" fetchType="lazy"></collection>
+  </resultMap>
+  
+<!--dao.ProductMapper.selectByCid  -->
+
+  <select id="selectChildren" resultType="bean.ttsx_category">
+    select * from ttsx_category where pid=#{id}
+  </select>
+  
+  <select id="selectAll" resultMap="rmdb">
+    select * from ttsx_category
+  </select>
+  
+    <select id="selectById" resultMap="rmds"><!-- resultMap="rmds" -->
+    select * from ttsx_category where id=#{id}
+  	</select>
+  
+  <insert id="insert">
+  		insert into ttsx_category values(null,#{cname},#{pid})
+  </insert>
+  
+  <update id="update">
+  		update ttsx_category set cname=#{cname},pid=#{pid}
+  		where id=#{id}
+  </update>
+  
+  <delete id="delete">
+  		delete from ttsx_category where id=#{id}
+  </delete>
+</mapper>

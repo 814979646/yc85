@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-找回密码</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="js/register.js"></script>
+	<script type="text/javascript" src="0101util/vue.min.js"></script>
+	<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<body onload="init()">
+	<div class="register_con">
+		<div class="l_con fl">
+			<a class="reg_logo"><img src="images/logo02.png"></a>
+			<div class="reg_slogan">足不出户  ·  新鲜每一天</div>
+			<div class="reg_banner"></div>
+		</div>
+
+		<div class="r_con fr">
+			<div class="reg_title clearfix">
+				<h1>找回密码</h1>
+				<a href="login.html">登录</a>
+			</div>
+			<div class="reg_form clearfix" id="app">
+				<form>
+				<ul>
+					<li>
+						<label>用户名:</label>
+						<input  type="text" name="user_name" id="name">
+					</li>					
+					<li>
+						<label>重置密码:</label>
+						<input v-model="upass" type="password" name="pwd" id="pwd">
+					</li>
+					<li>
+						<label>邮箱:</label>
+						<input  type="text" name="email" id="email">
+						<button type="button" style="position: relative;left: 400px;bottom: 32px" @click="sendvcode">发送验证码</button>
+						
+					</li>
+					<li>
+						<label>验证码</label>
+						<input v-model="vcode" type="text" name="vcode" id="vcode">
+					</li>
+					
+					<li class="reg_sub">
+						<input  type="button" value="确定"  @click="save">
+					</li>
+				</ul>				
+				</form>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="footer no-mp">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+</body>
+<script type="text/javascript">
+function init(){//document.cookie.split(";")[0].split("=")[1]
+	
+		var username =document.cookie.split(";")[0].split("=")[1] ;
+		document.getElementById("name").value=username;
+		axios({
+			url:"/C85-S2-TTSX/FindPwdServlet.do",
+			params:{
+				uname: username,
+				op:"queryEmail"
+			}
+		}).then((res)=>{
+			document.getElementById("email").value=res.data;
+		});
+}
+var vue = new Vue({
+	el:"#app",
+	data:{
+		upass:"",
+		vcode:"",
+	},
+	methods:{
+		sendvcode(){
+			axios({
+				url:"/C85-S2-TTSX/CreatEmail.do",
+				params:null
+			}).then((res)=>{
+				alert(res.data);
+			});
+		},
+		save(){
+			axios({
+				url:"/C85-S2-TTSX/FindPwdServlet.do",
+				params:{
+					uname:document.getElementById("name").value,
+					upass:this.upass,
+					vcode:this.vcode,
+					op:"updatePwd"
+				}
+			}).then((res)=>{
+				alert(res.data);
+				location.href="login.html"
+			});
+		},
+	}
+});
+</script>	
+</html>

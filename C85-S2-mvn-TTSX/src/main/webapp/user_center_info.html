@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-用户中心</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="0101util/vue.min.js"></script>
+	<script type="text/javascript" src="0101util/axios.min.js"></script>
+	<script type="text/javascript" src="0101util/ajax.js"></script>
+	  <style type="text/css">
+#b1 {
+    color: #444444;
+    background: #F3F3F3;
+    border: 1px #DADADA solid;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 9pt;
+    outline: none;
+    width: 110px
+}
+
+#b1:hover {
+    border: 1px #C6C6C6 solid;
+    box-shadow: 1px 1px 1px #EAEAEA;
+    color: #333333;
+    background: #F7F7F7;
+}
+
+#b1:active {
+    box-shadow: inset 1px 1px 1px #DFDFDF;   
+}
+</style>
+</head>
+
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>	
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="index.html">首页</a></div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>		
+	</div>
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="user_center_info.html" class="active">· 个人信息</a></li>
+				<li><a href="user_center_order.html">· 全部订单</a></li>
+				<li><a href="user_center_site.html">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div id="datainfo" class="right_content clearfix">
+				<div class="info_con clearfix" >
+				<h3 class="common_title2">基本信息</h3>
+						<ul class="user_info_list" v-for="l in list" style="background: url(img/背景1.jpg) 300px 340px;">
+						<div style="float: left;">
+						<form id="f2" style="position: relative;bottom: 10px">
+						<img :src="l.head"  style=" height: 110px" onclick="img.click()"><br>
+						<div style="display: none;">
+						<input type="file" name="file" id="img"><br>
+						</div>
+						<button id="b1" type="button" @click="change1">更换头像</button>
+						</form>
+						</div>
+							<div style="float: right; position: relative; right: 600px">
+							<li ><span >用户名：</span>{{l.uname}}</li>
+							<li><span>联系方式：</span>{{l.phone}}</li>
+							<li><span>联系地址：</span>{{l.address}}</li>
+						    </div>	
+						    <div style="position: relative; left: 300px;">
+						    <li><span>淘金币：</span>{{taojb.substring(0,5)}}</li>
+						    <li><span>会员级别：</span>{{vip}}&nbsp;&nbsp;<a href="javascript:void()" @click="clic()">详情</a></li>
+						    </div>
+						    <div v-if="change==1" style="position: relative; left: 330px;">
+						    <span style="font-size: 1.2em;color: green;">你已经购买&nbsp;{{count}}&nbsp;件商品</span><br>
+						    <span style="font-size: 1.2em;color: green;">还差&nbsp;{{nextcount}}&nbsp;件商品升级为&nbsp;{{vip1}}&nbsp;</span>
+						    </div>		
+						</ul>
+				</div>
+				
+				<h3 class="common_title2">最近浏览</h3>
+				<div class="has_view_list">
+					<ul class="goods_type_list clearfix">
+				<li v-for="l1 in list1">
+					<a :href="'detail.html#'+l1.id"><img :src="l1.images" ></a>
+					<h4><a :href="'detail.html#'+l1.id">{{l1.productname}}</a></h4>
+					<div class="operate">
+						<span class="prize">￥{{l1.price}}</span>
+						<span class="unit">{{l1.specs}}</span>
+						<a href="javascript:void()" class="add_goods" title="加入购物车" @click="addcar(l1.id)"></a>
+					</div>
+				</li>
+			</ul>
+		</div>
+		</div>
+		<script type="text/javascript">
+		var num=0;
+		var vue=new Vue({
+			el:"#datainfo",
+			data:{
+				list:[],
+				list1:[],
+				taojb:"",
+				vip:"",
+				change:"",
+				count:"",
+				nextcount:"",
+				vip1:"",
+				uid:"",
+				
+			},
+			created:function(){
+				this.query();
+				this.query1();
+				this.querycount();
+				this.querydata();
+			},
+			methods:{
+				querydata(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querydata"
+						}
+					}).then((res)=>{
+							this.taojb=res.data[0].taojb;
+							this.vip=res.data[0].vip;
+					});
+				},
+				clic(){
+					if(num==0){
+						this.change=1;
+						this.querycount();
+						num=1;
+					}else{
+						this.change=0;
+						num=0;
+					}
+				},
+				querynextcount(num){
+					var count1= parseInt(num);
+					if(this.vip=="大众会员"){
+						this.nextcount=10-count1;
+						this.vip1="白银会员";
+					}else if(this.vip=="白银会员"){
+						this.nextcount=30-count1;
+						this.vip1="黄金会员";
+					}else if(this.vip=="黄金会员"){
+						this.nextcount=60-count1;
+						this.vip1="铂金会员";
+					}else if(this.vip=="铂金会员"){
+						this.nextcount=100-count1;
+						this.vip1="钻石会员";
+					}else if(this.vip=="钻石会员"){
+						this.nextcount=500-count1;
+						this.vip1="superVIP";
+					}else if(this.vip=="superVIP"){
+						this.nextcount=0;
+						this.vip1="您已成为最高等级会员";
+					}
+				},
+				querycount(){
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"querycount"
+						}
+					}).then((res)=>{
+						if(res.data[0].count==null){
+							this.count=0;
+							this.querynextcount(this.count);
+						}else{
+							this.count=res.data[0].count;
+							this.querynextcount(this.count);
+						}
+							
+					});
+				},
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/QueryUserinfosServlet.do",
+						params:null
+					}).then((res)=>{
+							this.list=res.data;
+					});
+				},
+				query1(){
+					axios({
+						url:"/C85-S2-TTSX/ProductServlet.do",
+						params:{
+							op:"querylasts"
+						}
+					}).then((res)=>{
+							this.list1=res.data;
+					});
+				},
+				change1(){
+					var url="/C85-S2-TTSX/ChangeServlet.do";
+					//ajax上传文件必须使用FormData对象，用于封装from元素
+					var param=new FormData(f2);
+					post(url,param,function(text){
+					});
+					axios({
+						url:"/C85-S2-TTSX/ReplyServlet.do",
+						params:{
+							op:"update",
+						}		
+					}).then((res)=>{
+					});
+					this.reload();
+					
+				},
+				reload(){
+					this.query();
+				},
+				addcar(num){
+						axios({
+							url:"/C85-S2-TTSX/InsertCarServlet.do",
+							params:{
+								id:num,
+								op:1
+							}		
+						}).then((res)=>{
+							alert(res.data);
+						});
+				},
+			}
+		});
+		</script>
+	</div>
+
+
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	
+</body>
+</html>

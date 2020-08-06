@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-用户中心</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="0101util/vue.min.js"></script>
+	<script type="text/javascript" src="0101util/axios.min.js"></script>
+	 <style type="text/css">
+#b1 {
+    color: #444444;
+    background: #F3F3F3;
+    border: 1px #DADADA solid;
+    padding: 5px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    font-size: 9pt;
+    outline: none;
+}
+
+#b1:hover {
+    border: 1px #C6C6C6 solid;
+    box-shadow: 1px 1px 1px #EAEAEA;
+    color: #333333;
+    background: #F7F7F7;
+}
+
+#b1:active {
+    box-shadow: inset 1px 1px 1px #DFDFDF;   
+}
+</style>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="index.html">首页</a></div>
+			
+	</div>
+
+	<div id="dd" class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="user_center_info.html">· 个人信息</a></li>
+				<li><a href="user_center_order.html" class="active">· 全部订单</a></li>
+				<li><a href="user_center_site.html">· 收货地址</a></li>
+			</ul>
+		</div>
+		
+		<div class="right_content clearfix" >
+				<h3 class="common_title2">全部订单
+				<span v-if="remake==1" style="position: relative;left: 480px;bottom: 80px;">
+				请输入订单号：<input type="text"  style="width: 120px;" v-model="ordernum">
+				<input id="b1" type="button" @click="save" value="确定" style="width: 50px;margin-right: 5px">
+				<input id="b1" type="button" @click="rt" value="取消" style="width: 50px;"></span>
+				<a href="javascript:void()" @click="open" style="position: relative;left:800px;color: red">退货退款</a></h3>
+				<ul v-for="l in list">
+				<ul class="order_list_th w978 clearfix" >
+					<li class="col01">{{l.createtime}}</li>
+					<li class="col02">订单号：{{l.ordernum}}</li>
+					<li class="col02 stress">{{l.status}}</li>
+					<a class="col02 stress" style="position: relative;left: 280px;top: 6px" href="javascript:void()" @click="del(l.id)">删除</a>		
+				</ul>
+              <table class="order_list_table w980" >
+					<tbody>
+						<tr >
+							<td width="55%">
+								<ul class="order_goods_list clearfix" v-for="l1 in l.olist">					
+									<li class="col01"><img :src="l1.images"></li>
+									<li class="col02">{{l1.pname}}<em>{{l1.spesc}}</em></li>	
+									<li class="col03">{{l1.count}}</li>
+									<li class="col04">{{l1.prices}}</li>	
+								</ul>
+							</td>
+							<td width="15%">{{l.orderprices}}</td>
+							<td width="15%" >{{l.status1}}</td>
+							<td width="15%" v-if="l.status1=='待付款'"><a href="javascript:void()" class="oper_btn" @click="gobuy(l.id)">去付款</a></td>
+							<td width="15%" v-if="l.status1=='待发货'"><a  class="oper_btn" >待发货</a></td>
+							<td width="15%" v-if="l.status1=='退款中'"><a  class="oper_btn" >退款中</a></td>
+							<td width="15%" v-if="l.status1=='已退款'"><a  class="oper_btn" >已退款</a></td>
+							<td width="15%" v-if="l.status1=='已发货'"><a href="javascript:void()" class="oper_btn"  @click="saveorder(l.id)">确认收货</a></td>
+							<td width="15%" v-if="l.status1=='已收货'"><a :href="'reply.html#'+l.id" class="oper_btn">去评价</a></td>
+							<td width="15%" v-if="l.status1=='已评价'"><a href="#" class="oper_btn">已评价</a></td>
+						</tr>
+					</tbody>
+				</table>
+				</ul>
+				<div class="pagenation">
+					<a href="javascript:void()" @click="query(-1)">上一页 </a> 
+				<input type="number"  style="width: 50px;height: 28px" v-model="page" :max="pages">
+				<a href="javascript:void()" @click="query(1)" >下一页</a>
+				</div>
+		</div>
+	</div>
+<script type="text/javascript">
+var vue=new Vue({
+	el:"#dd",
+	data:{
+		list:[],
+		list1:[],
+		prices:"",
+		id:"",
+		page:"",
+		pages:999,
+		remake:"",
+		ordernum:""
+	},
+	created:function(){
+		this.query(0);
+	},
+	methods:{
+		gobuy(num){
+			axios({
+				url:"/C85-S2-TTSX/ReplyServlet.do",
+				params:{
+					op:"setoid",
+					oid:num
+				}
+			}).then((res)=>{
+				location.href="index.jsp"
+			});
+		},
+		save(){
+			axios({
+				url:"/C85-S2-TTSX/LastServlet.do",
+				params:{
+					op:"queryorder",
+					ordernum:this.ordernum
+				}
+			}).then((res)=>{
+				if(res.data=="1"){
+					location.href="recash.jsp";
+				}else{
+					alert(res.data);
+				}
+			});
+		},
+		rt(){
+			this.remake=0;
+		},
+		open(){
+			this.remake=1;
+		},
+		query(type){
+			switch(type){
+			case 0:
+				this.page=1;
+				break;
+			case 1:
+				this.page+=1;
+				break;
+			case -1:
+				this.page-=1;
+				break;
+			}
+			if(this.page>this.pages){
+				alert("你已经到达了最后一页哦");
+				this.page=this.pages;
+				return;
+			}
+			if(this.page<1){
+				alert("你已经到达了第一页哦");
+				this.page=1;
+				return;
+			}
+			axios({
+				url:"/C85-S2-TTSX/ProductServlet.do",
+				params:{
+					op:"queryorderlist",
+					page:this.page
+				}
+			}).then((res)=>{
+				this.list=res.data.list;
+				this.pages=res.data.pages;
+			});
+		},
+		saveorder(num){
+			axios({
+				url:"/C85-S2-TTSX/ReplyServlet.do",
+				params:{
+					op:"updateorder",
+					id:num
+				}
+			}).then((res)=>{
+				if(confirm("是否确认收货")){
+					alert(res.data);
+					this.query(0);
+				}else{
+					return;
+				}
+			});
+		},
+		del(num1){
+			var msg="是否删除这条数据";
+			if(confirm(msg)){//点击确认后执行的代码
+				axios({
+					url:"/C85-S2-TTSX/PorderServlet.do",
+					params:{
+						id:num1,
+						op:"delorder"
+					}
+				}).then((res)=>{
+					alert(res.data);
+					this.query(0);
+				});
+			}else{
+				return false;
+			}
+			
+		},
+		
+	}
+});
+</script>
+
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	
+</body>
+</html>

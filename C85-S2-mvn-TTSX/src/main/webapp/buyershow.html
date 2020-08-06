@@ -1,0 +1,476 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-买家秀</title>
+	
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+			<script type="text/javascript" src="0101util/vue.min.js"></script>
+			<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+				<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+		<div class="guest_cart fr" id="car">
+			<a href="cart.html" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">{{count}}</div>
+		</div>
+		<script type="text/javascript">
+		var vue6=new Vue({
+			el:"#car",
+			data:{
+				count:"",
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryCarServlet.do",
+					params:null
+				}).then((res)=>{
+						this.count=res.data.count;
+				});	
+			}
+		});
+		</script>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul  class="subnav">
+					<li><a href="list.html#1" class="fruit" >新鲜水果</a></li>
+					<li><a href="list.html#2" class="seafood">海鲜水产</a></li>
+					<li><a href="list.html#3" class="meet">猪牛羊肉</a></li>
+					<li><a href="list.html#4" class="egg">禽类蛋品</a></li>
+					<li><a href="list.html#5" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="list.html#6" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="index.html">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="cutlist.html#7">折扣专区</a></li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb" id="dclass">
+		<a href="#">全部分类</a> <span>></span> <a href="#">{{cname}}</a> <span>></span>
+		<a href="#">商品评论</a>
+	</div>
+<script type="text/javascript">
+var id=location.hash.substring(1);
+var vue3=new Vue({
+	el:"#dclass",
+	data:{
+		cname:"",
+	},
+	created:function(){
+		axios({
+			url:"/C85-S2-TTSX/ProductServlet.do",
+			params:{
+				id:id,
+				op:"queryid"
+			}
+		}).then((res)=>{
+			console.info(res.data);
+			this.cname=res.data.cname;
+		});
+	}
+});
+
+</script>
+	<div id="d1" class="goods_detail_con clearfix" v-for="l in list">
+		<div class="goods_detail_pic fl">
+			<img :src="l.images" style="width: 380px">
+		</div>
+
+		<div  class="goods_detail_list fr" >
+			<h3>{{l.productname}}</h3>
+			<p>{{l.products}}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em>{{l.price}}</em></span> <span
+					class="show_unit">规格：{{l.specs}}</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1" v-model="count"> <a
+						href="javascript:void()" class="add fr" @click="add">+</a> <a href="javascript:void()"
+						class="minus fr" @click="sub">-</a>
+				</div>
+			</div>
+			<div class="total">
+				总价：<em style="font-size: 3em">{{prices}}</em>
+			</div>
+			<div class="operate_btn">
+				<a href="javascript:void()" class="buy_btn" @click="order">立即购买</a> <a
+					href="javascript:void()" class="add_cart" id="add_cart" @click="addcar()">加入购物车</a>
+			</div>
+		</div>
+		
+	</div>
+<script type="text/javascript">
+		 var id=location.hash.substring(1);
+			var vue1=new Vue({
+				el:"#d1",
+				data:{
+					list:[],
+					count:1,
+					prices:""
+				},
+				created:function(){
+					this.query();
+				},
+				methods:{
+					query(){
+						axios({
+							url:"/C85-S2-TTSX/DetailServlet.do",
+							params:{
+								id:id
+							}		
+						}).then((res)=>{
+							this.list=res.data;
+							this.prices=this.list[0].price;
+						});
+					},
+					add(){
+						this.count++;
+						this.prices=this.count*this.list[0].price;
+					},
+					sub(){
+						if(this.count>1){
+							this.count--;
+							this.prices=this.count*this.list[0].price;
+						}else{
+							alert("不可以继续减少了");
+						}
+					},
+					addcar(){
+						axios({
+							url:"/C85-S2-TTSX/InsertCarServlet.do",
+							params:{
+								id:this.list[0].id,
+								op:2,
+								count:this.count,
+								prices:this.prices
+							}		
+						}).then((res)=>{
+							alert(res.data);
+							if(this.count!=1){
+								this.count=1;
+								this.prices=this.count*this.list[0].price;
+							}
+						});
+					},
+					order(){
+						axios({
+							url:"/C85-S2-TTSX/InsertOrderServlet.do",
+							params:{
+								orderprices:this.prices
+							}
+						}).then((res)=>{
+							var oid=res.data;
+							console.info(oid);
+							axios({
+								url:"/C85-S2-TTSX/PorderServlet.do",
+								params:{
+									oid:oid,
+									op:"insertporder",
+									pname:this.list[0].productname,
+									price:this.list[0].price,
+									spesc:this.list[0].specs,
+									count:this.count,
+									images:this.list[0].images,
+									prices:this.prices,
+								}
+							}).then((res)=>{
+								location.href="place_order.html";
+							});
+						});
+						
+					},
+				}
+			})
+
+		</script>
+	<div class="main_wrap clearfix" id="app">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul id="u1">
+					<li v-for="l in list2"><a :href="'detail.html#'+l.id" ><img :src="l.images"></a>
+						<h4>
+							<a :href="'detail.html#'+l.id">{{l.productname}}</a>
+						</h4>
+						<div class="prize">￥{{l.price}}</div></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix" v-for="l in list3">
+			<ul id="uu" class="detail_tab clearfix" >
+				<li ><a :href="'detail.html#'+l.id">商品介绍</a></li>
+				<li ><a :href="'commit.html#'+l.id">评论</a></li>
+				<li class="active">买家秀</li>
+			</ul>
+
+			<div id="d2" class="tab_content">
+				<dl >
+					<dt>买家秀：</dt>
+					<dt >
+					<ul class="user_info_list" v-for="l in list" style="height: 145px">
+						<table>
+						<tr>
+						<th><img :src="l.images" style="height:90px "></th>
+						<th ><img v-if="l.image1!=null" :src="l.image1" style="width: 100px;height:100px;margin-left: 70px;">
+						<img v-if="l.image2!=null" :src="l.image2" style="width: 100px;height:100px">
+						<img v-if="l.image3!=null" :src="l.image3" style="width: 100px;height:100px"></th>
+						<th><span style="font-size: 1em;position: relative;top:70px;">{{l.content}}</span></th>
+						</tr>
+						<tr><td>{{l.createtime}}</td></tr>
+						<tr><td style="color: red">{{l.name}}</td></tr>
+						<tr >
+						<td >
+						<img  id="img" src="zan/爱心1.jpg" style="width: 15px" @click="zan(l.id)">{{l.zan}}</td>
+						</tr>
+						</table>		
+						</ul>
+					</dt>
+					<dt><div class="pagenation">
+					<a href="javascript:void()" @click="queryreply(-1)">上一页 </a> 
+				<input type="number"  style="width: 50px;height: 28px"  v-model="page" :max="pages">
+				<a href="javascript:void()"  @click="queryreply(1)">下一页</a>
+				</div></dt>
+				</dl>
+			</div>
+
+		</div>
+	</div>
+<script type="text/javascript">
+var i=0;
+				 var id=location.hash.substring(1);
+					var vue3=new Vue({
+						el:"#app",
+						data:{
+							list:[],
+							list2:[],
+							content:"",
+							list3:[],
+							page:"",
+							pages:999,
+							countzan:0,
+						},
+						created:function(){
+							this.query();
+							this.queryreply(0);
+							this.queryjump();
+						},
+						methods:{
+							query(){
+								axios({
+									url:"/C85-S2-TTSX/NewServlet.do",
+									params:{
+										id:id
+									}		
+								}).then((res)=>{
+									this.list2=res.data;
+								});
+							},
+							queryreply(type){
+								switch(type){
+								case 0:
+									this.page=1;
+									break;
+								case 1:
+									this.page+=1;
+									break;
+								case -1:
+									this.page-=1;
+									break;
+								}
+								if(this.page>this.pages){
+									alert("你已经到达了最后一页哦");
+									this.page=this.pages;
+									return;
+								}
+								if(this.page<1){
+									alert("你已经到达了第一页哦");
+									this.page=1;
+									return;
+								}
+								axios({
+									url:"/C85-S2-TTSX/ReplyServlet.do",
+									params:{
+										pid:id,
+										page:this.page,
+										op:"queryshow"
+									}		
+								}).then((res)=>{
+									this.list=res.data.list;
+									this.pages=res.data.pages;
+								});
+							},
+							queryjump(){
+								axios({
+									url:"/C85-S2-TTSX/DetailServlet.do",
+									params:{
+										id:id
+									}		
+								}).then((res)=>{
+									this.list3=res.data;
+								});
+							},
+							zan(num){
+								//var i1 = document.getElementById("img");
+								if(num!=i){
+									axios({
+										url:"/C85-S2-TTSX/ReplyServlet.do",
+										params:{
+											op:"zanshow",
+											id:num,
+										}
+									}).then((res)=>{
+										axios({
+											url:"/C85-S2-TTSX/ReplyServlet.do",
+											params:{
+												op:"countzanshow",
+												id:num,
+											}
+										}).then((res)=>{
+											this.queryreply(0);
+											i=num;
+											//i1.src ="zan/爱心2.jpg";
+										});
+									});
+								}else{
+									 //再次点击删除
+									 axios({
+										url:"/C85-S2-TTSX/ReplyServlet.do",
+										params:{
+											op:"zanshowdel",
+											id:num,
+										}
+									}).then((res)=>{
+										axios({
+											url:"/C85-S2-TTSX/ReplyServlet.do",
+											params:{
+												op:"countzanshow",
+												id:num,
+											}
+										}).then((res)=>{
+											this.queryreply(0);
+											i=0;
+											//i1.src ="zan/爱心1.jpg";
+										});
+									}); 
+								}
+							},
+							
+						}
+					})
+
+</script>
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a> <span>|</span> <a href="#">联系我们</a> <span>|</span>
+			<a href="#">招聘人才</a> <span>|</span> <a href="#">友情链接</a>
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888 京ICP备*******8号</p>
+	</div>
+	<div class="add_jump"></div>
+
+	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({
+			'left' : $add_y + 80,
+			'top' : $add_x + 10,
+			'display' : 'block'
+		})
+		$('#add_cart').click(function() {
+			$(".add_jump").stop().animate({
+				'left' : $to_y + 7,
+				'top' : $to_x + 7
+			}, "fast", function() {
+				$(".add_jump").fadeOut('fast', function() {
+					$('#show_count').html(2);
+				});
+
+			});
+		})
+	</script>
+
+</body>
+</html>

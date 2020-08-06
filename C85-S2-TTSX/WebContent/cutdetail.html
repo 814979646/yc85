@@ -1,0 +1,457 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-商品详情</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+			<script type="text/javascript" src="0101util/vue.min.js"></script>
+			<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="search_con fl">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+				<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>
+		<div class="guest_cart fr" id="car">
+			<a href="cart.html" class="cart_name fl">我的购物车</a>
+			<div class="goods_count fl" id="show_count">{{count}}</div>
+		</div>
+		<script type="text/javascript">
+		var vue6=new Vue({
+			el:"#car",
+			data:{
+				count:"",
+			},
+			created:function(){
+				axios({
+					url:"/C85-S2-TTSX/QueryCarServlet.do",
+					params:null
+				}).then((res)=>{
+						this.count=res.data.count;
+				});	
+			}
+		});
+		</script>
+	</div>
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>
+				<span></span>
+				<ul  class="subnav">
+					<li><a href="list.html#1" class="fruit" >新鲜水果</a></li>
+					<li><a href="list.html#2" class="seafood">海鲜水产</a></li>
+					<li><a href="list.html#3" class="meet">猪牛羊肉</a></li>
+					<li><a href="list.html#4" class="egg">禽类蛋品</a></li>
+					<li><a href="list.html#5" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="list.html#6" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="index.html">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="cutlist.html#7">折扣专区</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb" id="dclass">
+		<a href="#">全部分类</a> <span>></span> <a href="#">{{cname}}</a> <span>></span>
+		<a href="#">商品详情</a>
+	</div>
+<script type="text/javascript">
+var id=location.hash.substring(1);
+var vue3=new Vue({
+	el:"#dclass",
+	data:{
+		cname:"",
+	},
+	created:function(){
+		axios({
+			url:"/C85-S2-TTSX/ProductServlet.do",
+			params:{
+				id:id,
+				op:"queryid"
+			}
+		}).then((res)=>{
+			console.info(res.data);
+			this.cname=res.data.cname;
+		});
+	}
+});
+
+</script>
+	<div id="d1" class="goods_detail_con clearfix" v-for="l in list">
+		<div class="goods_detail_pic fl">
+			<img :src="l.images" style="width: 380px">
+		</div>
+
+		<div  class="goods_detail_list fr" >
+			<h3>{{l.productname}}</h3>
+			<p>{{l.products}}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">促销价：￥{{l.price*0.5}}</span> 
+				<span class="prize">原价¥<em>{{l.price}}</em></span> 
+				<span style="margin-left: 20px">规格：{{l.specs}}</span>
+				<span style="color: red;font-size: 1.5em;margin-left: 20px">{{cnt?'销量:'+cnt:'销量:0'}}</span>
+				<span class="prize" style="color: red;margin-left: 20px">剩余时间：</span>
+				<span class="prize" style="color: red; font-size: 2em" >{{countDownList}}</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1" v-model="count"> <a
+						href="javascript:void()" class="add fr" @click="add">+</a> <a href="javascript:void()"
+						class="minus fr" @click="sub">-</a>
+				</div>
+			</div>
+			<div class="total">
+				总价：<em style="font-size: 3em">{{prices}}</em>
+			</div>
+			<div class="operate_btn">
+				<a href="javascript:void()" class="buy_btn" @click="order">立即购买</a> <a
+					href="javascript:void()" class="add_cart" id="add_cart" @click="addcar()">加入购物车</a>
+			</div>
+		</div>
+		
+	</div>
+<script type="text/javascript">
+		 var id=location.hash.substring(1);
+			var vue1=new Vue({
+				el:"#d1",
+				data:{
+					list:[],
+					count:1,
+					prices:"",
+					countDownList: '00天00时00分00秒',
+					actEndTime: '2020-07-30 00:00:00',
+					cnt:""
+				},
+				created:function(){
+					this.query();
+					this.countDown();
+					this.queryxl();
+				},
+				methods:{
+					query(){
+						axios({
+							url:"/C85-S2-TTSX/DetailServlet.do",
+							params:{
+								id:id
+							}		
+						}).then((res)=>{
+							this.list=res.data;
+							this.prices=this.list[0].price*0.5;
+						});
+					},
+					queryxl(){
+						axios({
+							url:"/C85-S2-TTSX/ReplyServlet.do",
+							params:{
+								id:id,
+								op:"queryxl"
+							}		
+						}).then((res)=>{
+							this.cnt=res.data[0].xl;
+						});
+					},
+					add(){
+						this.count++;
+						this.prices=this.count*this.list[0].price*0.5;
+					},
+					sub(){
+						if(this.count>1){
+							this.count--;
+							this.prices=this.count*this.list[0].price*0.5;
+						}else{
+							alert("不可以继续减少了");
+						}
+					},
+					addcar(){
+						axios({
+							url:"/C85-S2-TTSX/InsertCarServlet.do",
+							params:{
+								id:this.list[0].id,
+								op:4,
+								count:this.count,
+								prices:this.prices
+							}		
+						}).then((res)=>{
+							alert(res.data);
+							if(this.count!=1){
+								this.count=1;
+								this.prices=this.count*this.list[0].price;
+							}
+						});
+					},
+					timeFormat(param) {
+					　　　　　　return param < 10 ? '0' + param : param;
+					　　　　},
+				    　countDown(it) {
+					　　　　　　var interval = setInterval(() => {
+					　　　　　　　　// 获取当前时间，同时得到活动结束时间数组
+					　　　　　　　　let newTime = new Date().getTime();
+					　　　　　　　　// 对结束时间进行处理渲染到页面
+					　　　　　　　　let endTime = new Date(this.actEndTime).getTime();
+					　　　　　　　　let obj = null;
+					　　　　　　　　// 如果活动未结束，对时间进行处理
+					　　　　　　　　if (endTime - newTime > 0) {
+					　　　　　　　　　　let time = (endTime - newTime) / 1000;
+					　　　　　　　　　　// 获取天、时、分、秒
+					　　　　　　　　　　let day = parseInt(time / (60 * 60 * 24));
+					　　　　　　　　　　let hou = parseInt(time % (60 * 60 * 24) / 3600);
+					　　　　　　　　　　let min = parseInt(time % (60 * 60 * 24) % 3600 / 60);
+					　　　　　　　　　　let sec = parseInt(time % (60 * 60 * 24) % 3600 % 60);
+					　　　　　　　　　　obj = {
+					　　　　　　　　　　　　day: this.timeFormat(day),
+					　　　　　　　　　　　　hou: this.timeFormat(hou),
+					　　　　　　　　　　　　min: this.timeFormat(min),
+					　　　　　　　　　　　　sec: this.timeFormat(sec)
+					　　　　　　　　　　};
+					　　　　　　　　} else { // 活动已结束，全部设置为'00'
+					　　　　　　　　　　obj = {
+					　　　　　　　　　　　　day: '00',
+					　　　　　　　　　　　　hou: '00',
+					　　　　　　　　　　　　min: '00',
+					　　　　　　　　　　　　sec: '00'
+					　　　　　　　　　　};
+					　　　　　　　　　　clearInterval(interval);
+					　　　　　　　　}
+					　　　　　　　　this.countDownList = obj.day + '天' + obj.hou + '时' + obj.min + '分' + obj.sec + '秒';
+					　　　　　　}, 1000);
+					　　　　},
+					    order(){
+						axios({
+							url:"/C85-S2-TTSX/InsertOrderServlet.do",
+							params:{
+								orderprices:this.prices
+							}
+						}).then((res)=>{
+							var oid=res.data;
+							console.info(oid);
+							axios({
+								url:"/C85-S2-TTSX/PorderServlet.do",
+								params:{
+									oid:oid,
+									op:"insertporder",
+									pname:this.list[0].productname,
+									price:this.list[0].price*0.5,
+									spesc:this.list[0].specs,
+									count:this.count,
+									images:this.list[0].images,
+									prices:this.prices,
+								}
+							}).then((res)=>{
+								location.href="place_order.html";
+							});
+						});
+						
+					},
+				}
+			})
+
+		</script>
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul id="u1">
+					<li v-for="l in list2"><a href="javascript:void()" @click="jump(l.id)"><img :src="l.images"></a>
+						<h4>
+							<a :href="'cutdetail.html#'+l.id">{{l.productname}}</a>
+						</h4>
+						<div class="prize">原价：￥{{l.price}}</div>
+						<div class="prize">促销价￥{{l.price*0.5}}</div></li>
+					
+				</ul>
+				<script type="text/javascript">
+				 var id=location.hash.substring(1);
+			    
+					var vue3=new Vue({
+						el:"#u1",
+						data:{
+							list2:[]
+						},
+						created:function(){
+							this.query();
+						},
+						methods:{
+							query(){
+								axios({
+									url:"/C85-S2-TTSX/NewServlet.do",
+									params:{
+										id:id
+									}		
+								}).then((res)=>{
+									this.list2=res.data;
+								});
+							},
+							jump(ids){
+								axios({
+									url:"/C85-S2-TTSX/DetailServlet.do",
+									params:{
+										id:ids
+									}		
+								}).then((res)=>{
+									vue1.$data.list=res.data;
+									vue2.$data.list=res.data;
+									vue1.$data.prices=res.data[0].price*0.5;
+									axios({
+										url:"/C85-S2-TTSX/ReplyServlet.do",
+										params:{
+											id:ids,
+											op:"queryxl"
+										}		
+									}).then((res)=>{
+										vue1.$data.cnt=res.data.xl;
+									});
+								});
+							},
+						}
+					})
+
+</script>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix" id="d2" v-for="l in list">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li ><a :href="'cutcommit.html#'+l.id">评论</a></li>
+				<li ><a :href="'cutbuyershow.html#'+l.id" >买家秀</a></li>
+			</ul>
+
+			<div  class="tab_content">
+				<dl >
+					<dt>商品详情：</dt>
+					<dd style="font-size: 1.5em;">{{l.productinfo}}</dd>
+				</dl>
+			</div>
+		</div>
+		<script type="text/javascript">
+		 var id=location.hash.substring(1);
+			var vue2=new Vue({
+				el:"#d2",
+				data:{
+					list:[]
+				},
+				created:function(){
+					this.query();
+				},
+				methods:{
+					query(){
+						axios({
+							url:"/C85-S2-TTSX/DetailServlet.do",
+							params:{
+								id:id
+							}		
+						}).then((res)=>{
+							this.list=res.data;
+						});
+					},
+				}
+			})
+
+		</script>
+	</div>
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a> <span>|</span> <a href="#">联系我们</a> <span>|</span>
+			<a href="#">招聘人才</a> <span>|</span> <a href="#">友情链接</a>
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888 京ICP备*******8号</p>
+	</div>
+	<div class="add_jump"></div>
+
+	<script type="text/javascript" src="js/jquery-1.12.2.js"></script>
+	<script type="text/javascript">
+		var $add_x = $('#add_cart').offset().top;
+		var $add_y = $('#add_cart').offset().left;
+
+		var $to_x = $('#show_count').offset().top;
+		var $to_y = $('#show_count').offset().left;
+
+		$(".add_jump").css({
+			'left' : $add_y + 80,
+			'top' : $add_x + 10,
+			'display' : 'block'
+		})
+		$('#add_cart').click(function() {
+			$(".add_jump").stop().animate({
+				'left' : $to_y + 7,
+				'top' : $to_x + 7
+			}, "fast", function() {
+				$(".add_jump").fadeOut('fast', function() {
+					$('#show_count').html(2);
+				});
+
+			});
+		})
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户管理</title>
+<link rel="stylesheet" type="text/css"
+	href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="0101util/axios.min.js"></script>
+<style type="text/css">
+input{
+width: 200px;
+}
+</style>
+<script type="text/javascript">
+function fmtImg(value,row,index){
+	return "<img height='100px' src='"+value+"'>";
+}
+function query(){
+	$('#tg').datagrid('load', {
+	    id: $("#id1").textbox('getValue'),
+	    uname: $("#uname1").textbox('getValue'),
+	    email: $("#email1").textbox('getValue'),
+	});
+}
+function fmtBut(value,row,index){
+	return "<button onclick='edit("+index+")'>修改</button>";
+}
+function edit(index){
+	var rows=$("#tg").datagrid('getRows');//得到这一行的所有数据
+	$("#dd").dialog('open');
+	$('#ff').form('load',rows[index]);
+}
+ function back(){
+	$("#dd").dialog('close');
+}
+function opendialog(){
+	
+	$("#d2").dialog('open');
+	
+} 
+function opendialog1(){
+	$("#d3").dialog('open');
+}
+function back1(){
+	$("#d2").dialog('close');
+} 
+function save(index){
+	$('#ff').form('submit',{
+		url:"/C85-S2-TTSX/UpdateUserServlet.do",
+		success:res=>{
+			alert(res);
+			//关闭窗口
+			$("#dd").dialog('close');
+			//刷新表格
+			$("#tg").datagrid('reload');
+		}
+	});
+}
+ function del(){
+	var msg="是否删除这条数据";
+	if(confirm(msg)){//点击确认后执行的代码
+		var rows=$("#tg").datagrid('getSelected');
+		axios({
+			url:"/C85-S2-TTSX/UserandUserinfoServlet.do",
+			params:{
+				id:rows.id,
+				op:"del"
+			}
+		}).then((res)=>{
+			alert(res.data);
+			$("#tg").datagrid('reload');
+		});
+	}else{
+		return false;
+	}
+	
+} 
+ 
+function opendialog(){
+	$("#d2").dialog('open');
+} 
+function opendialog1(){
+	$("#d3").dialog('open');
+}
+function back1(){
+	$("#d2").dialog('close');
+} 
+</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 32px">
+		<!-- label="书名"  等效==>  data-options="label:'书名:'" -->
+		<input id="id1" class="easyui-textbox" style="width: 200px" data-options="label:'编号:'"> 
+		<input id="uname1" class="easyui-textbox" style="width: 200px" data-options="label:'用户名:'">
+		<input id="email1" class="easyui-textbox" style="width: 200px" 
+		label="邮箱地址："   >
+		<a id="btn"  onclick="query()"
+		href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+		<a id="btn1"  onclick="del()"
+		href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">删除</a>
+		</div>
+		<div
+			data-options="region:'center',title:'查询结果',iconCls:'icon-ok'">
+			<table  class="easyui-datagrid" id="tg"
+				data-options="url:'/C85-S2-TTSX/UserandUserinfoServlet.do?op=query',
+				method:'get',
+				border:false,
+				singleSelect:true,<!-- 单选 -->
+				fit:true,<!-- 填充 -->
+				<!-- 等比展开  th必须有width值 -->
+				fitColumns:true,
+				pagination:true,
+				">
+				<thead>
+					<tr>
+						<th data-options="field:'id',width:100" >编号</th>
+						<th data-options="field:'uname',width:100" >用户名</th>
+						<th data-options="field:'createtime',width:100" >创建时间</th>
+						<th data-options="field:'email',width:100" >邮箱地址</th>
+						<th data-options="field:'head',
+						width:100,
+						formatter:fmtImg,
+						align:'center'">头像</th>
+						<th data-options="field:'name',width:100" >姓名</th>
+						<th data-options="field:'phone',width:100" >联系方式</th>
+						<th data-options="field:'address',width:100" >收货地址</th>
+						<th data-options="field:'postal',width:100" >邮编</th>
+						<!-- 写一个不存在的字段名   就可以得到按钮 -->
+						<th data-options="field:'idd',width:100,
+						formatter:fmtBut,align:'center'" >操作</th>
+						
+					</tr>
+				</thead>
+			</table>
+		</div>
+  </div>
+  
+  <div id="dd" class="easyui-dialog" title="修改用户信息" style="width:400px;height:375px;"
+    data-options="iconCls:'icon-save',
+    resizable:true,
+    modal:true,
+    buttons:'#bb',
+    closed:true">
+    <form action="#" id="ff">
+                <input name="id" class="easyui-textbox" style="width: 300px" data-options="label:'编号:'"><br>
+				<input name="uname" class="easyui-textbox" style="width: 300px" data-options="label:'用户名'"><br>
+				<input name="email" class="easyui-textbox" style="width: 300px" data-options="label:'邮箱地址'"><br>
+				<input name="head" class="easyui-textbox" style="width: 300px" data-options="label:'头像',"><br>
+				<input name="name" class="easyui-textbox" style="width:300px" data-options="label:'姓名'"><br>
+				<input name="phone" class="easyui-textbox" style="width: 300px" data-options="label:'联系方式'"><br>		
+				<input name="address" class="easyui-textbox" style="width: 300px" data-options="label:'收货地址'"><br>	
+				<input name="postal" class="easyui-textbox" style="width: 300px" data-options="label:'邮编'"><br>						
+	</form>		
+</div>
+<div id="bb">
+	<a href="#" class="easyui-linkbutton" onclick="save()">保存</a>
+	<a href="#" class="easyui-linkbutton" onclick="back()">取消</a>
+</div>
+
+</body>
+</html>

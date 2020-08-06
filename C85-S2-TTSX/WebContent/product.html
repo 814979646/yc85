@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品管理</title>
+<link rel="stylesheet" type="text/css"
+	href="easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+<script type="text/javascript" src="easyui/jquery.min.js"></script>
+<script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="0101util/axios.min.js"></script>
+<style type="text/css">
+input{
+width: 200px;
+}
+</style>
+<script type="text/javascript">
+function fmtImg(value,row,index){
+	return "<img height='100px' src='"+value+"'>";
+}
+
+function query(){
+	$('#tg').datagrid('load', {
+		productname: $("#productname1").textbox('getValue'),
+	    cid: $("#cid1").textbox('getValue'),
+	    ishot: $("#ishot1").textbox('getValue'),
+	});
+}
+function fmtBut(value,row,index){
+	return "<button onclick='edit("+index+")'>修改</button>";
+}
+function edit(index){
+	var rows=$("#tg").datagrid('getRows');//得到这一行的所有数据
+	$("#dd").dialog('open');
+	$('#ff').form('load',rows[index]);
+	upImg1.src =rows[index].images;
+	
+}
+ function back(){
+	$("#dd").dialog('close');
+}
+function opendialog(){
+	
+	$("#d2").dialog('open');
+	
+} 
+function opendialog1(){
+	$("#d3").dialog('open');
+}
+function back1(){
+	$("#d2").dialog('close');
+} 
+function save(index){
+	$('#ff').form('submit',{
+		url:"/C85-S2-TTSX/UpdateServlet.do",
+		success:res=>{
+			alert(res);
+			//关闭窗口
+			$("#dd").dialog('close');
+			//刷新表格
+			$("#tg").datagrid('reload');
+		}
+	});
+}
+ function adds(){
+	axios({
+		url:"/C85-S2-TTSX/InsertServlet.do",
+		params:{
+			productname: $("#productname").textbox('getValue'),
+			price: $("#price").textbox('getValue'),
+			cid: $("#cid").textbox('getValue'),
+			specs: $("#specs").textbox('getValue'),
+			images: $("#images").textbox('getValue'),
+			products: $("#products").textbox('getValue'), 
+			productinfo:$("#productinfo").textbox('getValue'), 
+		}
+	}).then((res)=>{
+		alert(res.data);
+		$("#d2").dialog('close');
+		$("#tg").datagrid('reload');
+		//$("#d2").dialog('clear');
+	});
+} 
+ function del(){
+	var msg="是否删除这条数据";
+	if(confirm(msg)){//点击确认后执行的代码
+		var rows=$("#tg").datagrid('getSelected');
+		axios({
+			url:"/C85-S2-TTSX/DelServlet.do",
+			params:{
+				id:rows.id
+			}
+		}).then((res)=>{
+			alert(res.data);
+			$("#tg").datagrid('reload');
+		});
+	}else{
+		return false;
+	}
+	
+} 
+ 
+function opendialog(){
+	$("#d2").dialog('open');
+} 
+function opendialog1(){
+	$("#d3").dialog('open');
+}
+function back1(){
+	$("#d2").dialog('close');
+} 
+function upload(newValue, oldValue){
+	var url = "/C85-S2-TTSX/UploadServlet.do";
+	var fd = new FormData(f1);
+	axios.post(url, fd).then(res=>{
+		alert(res.data.msg);
+		if(res.data.code){
+			res.data.data = res.data.data;
+			upImg.src = res.data.data;//展示图片
+			$("#images").textbox('setValue',res.data.data);
+		}
+	});
+}
+function upload1(newValue, oldValue){
+	var url = "/C85-S2-TTSX/UploadServlet.do";
+	var fd = new FormData(ff);
+	axios.post(url, fd).then(res=>{
+		alert(res.data.msg);
+		if(res.data.code){
+			res.data.data = res.data.data;
+			upImg1.src = res.data.data;//展示图片
+			$("#images1").textbox('setValue',res.data.data);
+		}
+	});
+}
+</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 32px">
+		<!-- label="书名"  等效==>  data-options="label:'书名:'" -->
+		<input id="productname1" class="easyui-textbox" style="width: 200px" data-options="label:'名字:'"> 
+		<input id="cid1" class="easyui-combobox" style="width: 200px" data-options="label:'类别:',url:'/C85-S2-TTSX/ProductServlet.do?op=querycname',valueField:'id', textField:'cname'">
+		<input id="ishot1" class="easyui-textbox" style="width: 200px" 
+		label="热卖："   >
+		<a id="btn"  onclick="query()"
+		href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a>
+		<a id="btn1"  onclick="del()"
+		href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">删除</a>
+		<a id="btn2"  onclick="opendialog()"
+		href="#" class="easyui-linkbutton" data-options="iconCls:'icon-add'">增加</a>
+		
+		</div>
+		<div
+			data-options="region:'center',title:'查询结果',iconCls:'icon-ok'">
+			<table  class="easyui-datagrid" id="tg"
+				data-options="url:'/C85-S2-TTSX/ProductServlet.do?op=query',
+				method:'get',
+				border:false,
+				singleSelect:true,<!-- 单选 -->
+				fit:true,<!-- 填充 -->
+				<!-- 等比展开  th必须有width值 -->
+				fitColumns:true,
+				pagination:true,
+				">
+				<thead>
+					<tr>
+						<th data-options="field:'id',width:100" >编号</th>
+						<th data-options="field:'productname',width:100" >商品名</th>
+						<th data-options="field:'price',width:100" >单价</th>
+						<th data-options="field:'cname',width:100" >分类</th>
+						<th data-options="field:'specs',width:100" >规格</th>
+						<th data-options="field:'images',
+						width:100,
+						formatter:fmtImg,
+						align:'center'">图片</th>
+						<th data-options="field:'createtime',width:100" >上架时间</th>
+						<th data-options="field:'ishot',width:100" >热卖商品</th>
+						<th data-options="field:'products',width:100" >商品介绍</th>
+						<th data-options="field:'productinfo',width:100" >商品详情</th>
+						<!-- 写一个不存在的字段名   就可以得到按钮 -->
+						<th data-options="field:'idd',width:100,
+						formatter:fmtBut,align:'center'" >操作</th>
+						
+					</tr>
+				</thead>
+			</table>
+		</div>
+  </div>
+  
+  <div id="dd" class="easyui-dialog" title="修改商品信息" style="width:400px;height:450px;"
+    data-options="iconCls:'icon-save',
+    resizable:true,
+    modal:true,
+    buttons:'#bb',
+    closed:true">
+    <form action="#" id="ff">
+                <input name="id" class="easyui-textbox" style="width: 300px" data-options="label:'编号:'"><br>
+				<input name="productname" class="easyui-textbox" style="width: 300px" data-options="label:'商品名:'"><br>
+				<input name="price" class="easyui-textbox" style="width: 300px" data-options="label:'价格:'"><br>
+				<input name="cid" class="easyui-combobox" style="width: 300px" data-options="label:'类别:',url:'/C85-S2-TTSX/ProductServlet.do?op=querycname',valueField:'id', textField:'cname'"><br>
+				<input name="specs" class="easyui-textbox" style="width:300px" data-options="label:'规格:'"><br>
+				<!-- <input name="images" class="easyui-textbox" style="width: 300px" data-options="label:'图片地址:'"><br> -->
+				<input name="products" class="easyui-textbox" style="width: 300px" data-options="label:'商品介绍:'"><br>	
+				<input name="ishot" class="easyui-textbox" style="width: 300px" data-options="label:'热卖商品:'"><br>	
+				<input name="productinfo" class="easyui-textbox" style="width: 300px" data-options="label:'商品详情'"><br>	
+				<div style="display: none;">
+				<input class="easyui-textbox" id="images1" name="images" label="图片" style="width: 300px"><br>
+		        <input class="easyui-filebox" label="选择" id="file1" name="file" style="width: 300px"
+			    data-options="onChange:upload1"><br>
+				</div>
+		        <img alt="" src="" height="100px" id="upImg1" onclick="filebox_file_id_1.click()"><br>		
+	</form>		
+</div>
+<div id="bb">
+	<a href="#" class="easyui-linkbutton" onclick="save()">保存</a>
+	<a href="#" class="easyui-linkbutton" onclick="back()">取消</a>
+</div>
+<div id="d2" class="easyui-dialog" title="新增商品" style="width:320px;height:430px;"
+    data-options="iconCls:'icon-save',resizable:true,modal:true,
+     buttons:'#b2',closed:true
+    ">
+    <form action="#" id="f1">
+    <input id="productname" class="easyui-textbox" style="width: 300px" data-options="label:'商品名:'"><br>
+				<input id="price" class="easyui-textbox" style="width: 300px" 
+				data-options="label:'价格：'"> <br>
+				<input id="cid" class="easyui-combobox" style="width: 300px" data-options="label:'类别:',url:'/C85-S2-TTSX/ProductServlet.do?op=querycname',valueField:'id', textField:'cname'"><br>
+				<input id="specs" class="easyui-textbox" style="width: 300px" data-options="label:'规格:'"><br>
+				<input id="products" class="easyui-textbox" style="width: 300px" data-options="label:'商品介绍:'"><br>
+				<input id="productinfo" class="easyui-textbox" style="width: 300px" data-options="label:'商品详情:'"><br>
+				
+				<div style="display: none">
+				<input class="easyui-textbox" id="images" label="图片" style="width: 300px"><br>
+		        <input class="easyui-filebox" label="选择" id="file" name="file" style="width: 300px"
+			    data-options="onChange:upload"><br>
+				</div>
+		        <img alt="" src="productimg/10三文鱼.jpg" height="100px" id="upImg" 
+		        onclick="filebox_file_id_2.click()"><br>
+		        </form>
+</div>
+<div id="b2">
+	<a href="#" class="easyui-linkbutton" onclick="adds()">保存</a>
+	<a href="#" class="easyui-linkbutton" onclick="back1()">取消</a>
+</div>
+
+</body>
+</html>

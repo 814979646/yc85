@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>天天生鲜-用户中心</title>
+	<link rel="stylesheet" type="text/css" href="css/reset.css">
+	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<script type="text/javascript" src="0101util/vue.min.js"></script>
+	<script type="text/javascript" src="0101util/axios.min.js"></script>
+</head>
+<body>
+	<div class="header_con">
+		<div class="header">
+			<div class="welcome fl">欢迎来到天天生鲜!</div>
+			<div id="log" class="fr">
+				<span v-if="loginuser.uname"
+					style="position: relative; right: 380px; top: 7px">欢迎
+					{{loginuser.uname}}</span>
+				<div class="login_btn fl" v-else>
+					<a href="login.html">登录</a> <span>|</span> <a href="register.html">注册</a>
+				</div>
+				<div class="user_link fl">
+					<span>|</span> <a href="user_center_info.html">用户中心</a> <span>|</span>
+					<a href="cart.html">我的购物车</a> <span>|</span> <a
+						href="user_center_order.html">我的订单</a> <span>|</span> <a
+						href="javascript:void()" @click="close">注销</a>
+				</div>
+			</div>
+			<script type="text/javascript">
+			var vue4=new Vue({
+				el:"#log",
+				data:{
+					loginuser:{}
+				},
+				created:function(){
+					axios({
+						url:"/C85-S2-TTSX/LoginedUserServelet.do",
+						params:null
+					}).then((res)=>{
+						if(res!=null){
+							this.loginuser=res.data;
+							if(res.data=="请先登录！"){
+								if(confirm(res.data)){
+									location.href="login.html";
+								}
+								location.href="login.html";
+							}
+						}
+					});
+					
+				},
+				methods:{
+					close(){
+						axios({
+							url:"/C85-S2-TTSX/LastServlet.do",
+							params:{
+								op:"closeLogin"
+							}
+						}).then((res)=>{
+							location.href="login.html";
+						});
+					},
+				}
+				
+			})
+			</script>
+		</div>
+	</div>
+
+	<div class="search_bar clearfix">
+		<a href="index.html" class="logo fl"><img src="images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;<a href="index.html">首页</a></div>
+		<div id="dseach" class="search_con fr">
+			<input type="text" class="input_text fl" v-model="productname" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索" @click="seach">
+		</div>
+		<script type="text/javascript" >
+		var vue5=new Vue({
+			el:"#dseach",
+			data:{
+				productname:"",
+			},
+			methods:{
+				seach(){
+					axios({
+						url:"/C85-S2-TTSX/SeachServlet.do",
+						params:{
+							productname:this.productname,
+						}
+					}).then((res)=>{
+							location.href="seach.html";
+					});	
+					
+				},
+			}
+		});
+		
+		</script>		
+	</div>
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="user_center_info.html">· 个人信息</a></li>
+				<li><a href="user_center_order.html">· 全部订单</a></li>
+				<li><a href="user_center_site.html" class="active">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div id="datas" class="right_content clearfix">
+				<h3 class="common_title2">收货地址</h3>
+				<div class="site_con" >
+					<dl v-for="l in list">
+					<input type="radio" @click="send(l.id)" name="address" :value="l.id" v-model="radio">
+						<dd><span>{{l.address}} </span>
+						<span>（{{l.name}}收） </span>
+						<span> {{l.phone.substring(0,3).concat("*****").concat(l.phone.length-3,l.phone.length)}}</span>&nbsp;&nbsp;
+						<a href="javascript:void()" @click="update(l.id)">修改</a>&nbsp;&nbsp;&nbsp;
+						<a href="javascript:void()" @click="del(l.id)">删除</a>
+						</dd>
+						
+					</dl>					
+				</div>
+				<h3 class="common_title2">编辑地址</h3>
+				<div class="site_con">
+					<form>
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" id="name">
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" id="address"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" id="postal">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" id="phone">
+						</div>
+
+						<input type="button" name="" value="提交" class="info_submit" @click="save">
+					</form>
+				</div>
+				<h3 class="common_title2">新增地址</h3>
+				<div class="site_con">
+					
+						<div class="form_group">
+							<label>收件人：</label>
+							<input type="text" v-model="name">
+						</div>
+						<div class="form_group form_group2">
+							<label>详细地址：</label>
+							<textarea class="site_area" v-model="address"></textarea>
+						</div>
+						<div class="form_group">
+							<label>邮编：</label>
+							<input type="text" v-model="postal">
+						</div>
+						<div class="form_group">
+							<label>手机：</label>
+							<input type="text" v-model="phone">
+						</div>
+
+						<input type="button"  value="提交" class="info_submit" @click="insert">
+					
+				</div>
+		</div>
+		<script type="text/javascript">
+		var vue=new Vue({
+			el:"#datas",
+			data:{
+				name:"",
+				address:"",
+				postal:"",
+				phone:"",
+				list:[],
+				radio:"",
+				id:""
+			},
+			created:function(){
+				this.query();
+				this.getaddress();
+				
+			},
+			methods:{
+				insert(){
+					//console.info(this.name);
+					axios({
+						url:"/C85-S2-TTSX/InsertUserinfoSevlet.do",
+						params:{
+							name:this.name,
+							address:this.address,
+							postal:this.postal,
+							phone:this.phone,
+						}
+					}).then((res)=>{
+						alert(res.data);
+						this.query();
+					});
+					
+				},
+				query(){
+					axios({
+						url:"/C85-S2-TTSX/QueryUserinfoServlet.do",
+						params:null
+					}).then((res)=>{
+						this.list=res.data;
+					});
+				},
+				update(num){
+					axios({
+						url:"/C85-S2-TTSX/QueryIDUserinfoServlet.do",
+						params:{
+							id:num
+						}
+					}).then((res)=>{
+						document.getElementById("name").value=res.data[0].name;
+						document.getElementById("address").value=res.data[0].address;
+						document.getElementById("postal").value=res.data[0].postal;
+						document.getElementById("phone").value=res.data[0].phone;
+						this.id=res.data[0].id;
+					});
+				},
+				save(){
+					axios({
+						url:"/C85-S2-TTSX/UpdataUserinfoServlet.do",
+						params:{
+							name:document.getElementById("name").value,
+							address:document.getElementById("address").value,
+							postal:document.getElementById("postal").value,
+							phone:document.getElementById("phone").value,
+							id:this.id
+						}
+					}).then((res)=>{
+						alert(res.data);
+						this.query();
+					});
+				},
+				send(num1){
+						axios({
+							url:"/C85-S2-TTSX/SaveAddressRedisServlet.do",
+							params:{
+								address:num1
+							}
+						}).then((res)=>{
+							
+						});
+				},
+				getaddress(){
+					axios({
+						url:"/C85-S2-TTSX/GetAddressServlet.do",
+						params:null
+					}).then((res)=>{
+						this.radio=res.data;
+					});
+				},
+				del(num2){
+					if(num2==this.radio){
+						alert("不可以删除默认地址");
+						return;
+					}else{
+						var msg="是否删除这条数据";
+						if(confirm(msg)){
+						axios({
+							url:"/C85-S2-TTSX/DeleteUserinfoServlet.do",
+							params:{
+								id:num2
+							}
+						}).then((res)=>{
+							alert(res.data);
+							this.query();
+						});
+						}else{
+							return false;
+						}
+					}
+				},
+			}
+		});
+		
+		</script>
+	</div>
+
+
+
+	<div class="footer">
+		<div class="foot_link">
+			<a href="#">关于我们</a>
+			<span>|</span>
+			<a href="#">联系我们</a>
+			<span>|</span>
+			<a href="#">招聘人才</a>
+			<span>|</span>
+			<a href="#">友情链接</a>		
+		</div>
+		<p>CopyRight © 2016 北京天天生鲜信息技术有限公司 All Rights Reserved</p>
+		<p>电话：010-****888    京ICP备*******8号</p>
+	</div>
+	
+</body>
+</html>

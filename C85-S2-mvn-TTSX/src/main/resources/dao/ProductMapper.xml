@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ProductMapper">
+
+
+	<!-- 自定义的字段映射 -->
+	<resultMap type="bean.Product" id="rmdp">
+		<!-- 主键 -->
+		<id column="id" property="id" />
+		<!-- 非主键 -->
+		<!-- <result column="market_price" property="marketPrice"/> <result column="shop_price" 
+			property="shopPrice"/> <result column="is_hot" property="isHot"/> -->
+	</resultMap>
+
+
+	<select id="selectAll" resultType="bean.Product"><!--resultmap="rmdp" -->
+		select * from ttsx_product
+	</select>
+
+	<select id="selectById" resultType="bean.Product"><!--resultmap="rmdp" -->
+		select * from ttsx_product where id=#{id}
+	</select>
+
+	<select id="selectByCid" resultMap="rmdp">
+		select * from ttsx_product where cid=#{cid}
+	</select>
+
+	<select id="selectByCids" resultMap="rmdp">
+		select * from ttsx_product where
+		<foreach item="cid" collection="cids" open="cid in ("
+			close=")" separator=",">
+			#{cid}
+		</foreach>
+	</select>
+
+	<select id="selectByObj" resultMap="rmdp">
+		select * from ttsx_product
+		<where>
+			<if test="productname!=null">
+				and productname like concat('%',#{productname},'%')
+			</if>
+			<if test="products!=null">
+				and products like concat('%',#{products},'%')
+			</if>
+
+			<choose>
+				<when test="ishot == null">
+					and ishot is null
+				</when>
+				<when test="ishot == -1">
+					and ishot is not null
+				</when>
+				<otherwise>
+					and ishot=#{ishot}
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+	<insert id="insert">
+		insert into ttsx_product values(null,#{cname},#{pid})
+	</insert>
+
+	<update id="update">
+		update ttsx_product
+		<set>
+			<if test="productname!=null">
+				productname=#{productname}
+			</if>
+			<if test="price!=null">
+				price=#{price}
+			</if>
+			<if test="cid!=null">
+				cid=#{cid}
+			</if>
+			<if test="specs!=null">
+				specs=#{specs}
+			</if>
+			<if test="images!=null">
+				images=#{images}
+			</if>
+			<if test="products!=null">
+				products=#{products}
+			</if>
+			<if test="createtime!=null">
+				createtime=#{createtime}
+			</if>
+			<if test="ishot!=null">
+				ishot=#{ishot}
+			</if>
+			<if test="productinfo!=null">
+				productinfo=#{productinfo}
+			</if>
+			<if test="xl!=null">
+				xl=#{xl}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="delete">
+		delete from ttsx_product where id=#{id}
+	</delete>
+</mapper>
